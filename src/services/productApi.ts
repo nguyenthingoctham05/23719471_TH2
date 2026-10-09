@@ -90,11 +90,17 @@ const KTX_ITEMS = [
   },
 ];
 
+let isOfflineSimulated = false;
+
 /**
  * Fetch danh sách sản phẩm từ FakeStore API qua axios instance
  * Map title, image, description cho món ăn KTXGo
  */
 export async function getProducts(): Promise<Product[]> {
+  if (isOfflineSimulated) {
+    throw new Error('Network Error: Không thể kết nối máy chủ khi tắt mạng');
+  }
+
   try {
     const response = await apiClient.get<RawApiProduct[]>('/products?limit=12', {
       timeout: 3000,
