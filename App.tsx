@@ -1,4 +1,4 @@
-﻿// TH2 | 23719471 | NGUYỄN THỊ NGỌC THẮM | #6325BD
+// TH2 | 23719471 | NGUYỄN THỊ NGỌC THẮM | #041913
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';

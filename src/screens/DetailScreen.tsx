@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import {
   ActivityIndicator,
   Alert,
@@ -12,7 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { ShopStackParamList } from '@navigation/ShopStack';
-import { useProduct } from '@services/productApi';
+import { useProductQuery } from '@services/productApi';
 import { triggerHaptic } from '@services/haptic';
 import { useCartStore } from '@stores/cartStore';
 import { PRICE_MULTIPLIER, STUDENT, VARIANT } from '@constants/student';
@@ -22,31 +22,32 @@ import Watermark from '@components/Watermark';
 type Props = NativeStackScreenProps<ShopStackParamList, 'Detail'>;
 
 export default function DetailScreen({ route }: Props) {
-  const result = useProduct(route.params.id);
-  const add = useCartStore(state => state.add);
+  const result = useProductQuery(route.params.id);
+  const addItem = useCartStore(state => state.addItem);
   const product = result.data;
 
   const handleAdd = () => {
     if (!product) return;
-    add(product);
+    addItem(product);
     triggerHaptic();
     Alert.alert('Đã thêm vào giỏ', `${STUDENT.mssv}: ${product.title}`);
   };
 
   return (
     <SafeAreaView style={styles.screen} edges={['left', 'right', 'bottom']}>
-      {VARIANT.watermark === 'top' && <Watermark />}
+      {VARIANT.watermarkAtTop && <Watermark />}
 
       <View style={styles.content}>
         {result.isPending ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={COLORS.primary} />
-            <Text style={styles.note}>Đang tải sản phẩm...</Text>
+            <Text style={styles.note}>Đang tải chi tiết món...</Text>
           </View>
         ) : result.isError || !product ? (
           <View style={styles.center}>
+            <Text style={styles.errorMssv}>{STUDENT.mssv}</Text>
             <Text style={styles.error}>
-              {STUDENT.mssv}: Không tải được chi tiết sản phẩm.
+              Không tải được chi tiết món ăn.
             </Text>
             <Pressable
               style={styles.button}
@@ -60,21 +61,33 @@ export default function DetailScreen({ route }: Props) {
         ) : (
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={styles.card}>
-              <Image source={{ uri: product.image }} style={styles.image} />
+              <Image
+                source={{ uri: product.image }}
+                style={styles.image}
+                resizeMode="cover"
+              />
               <Text style={styles.title}>{product.title}</Text>
               <Text style={styles.price}>
                 {Math.round(product.price * PRICE_MULTIPLIER).toLocaleString('vi-VN')} đ
               </Text>
-              <Text style={styles.note}>Mã sản phẩm: {product.id}</Text>
+
+              {!!product.description && (
+                <Text style={styles.description}>{product.description}</Text>
+              )}
+
+              <Text style={styles.note}>Mã món: #{product.id}</Text>
+
               <Pressable style={styles.button} onPress={handleAdd}>
-                <Text style={styles.buttonText}>Thêm vào giỏ hàng</Text>
+                <Text style={styles.buttonText}>
+                  Thêm vào giỏ · Haptic {VARIANT.hapticOnAdd}
+                </Text>
               </Pressable>
             </View>
           </ScrollView>
         )}
       </View>
 
-      {VARIANT.watermark === 'bottom' && <Watermark />}
+      {!VARIANT.watermarkAtTop && <Watermark />}
     </SafeAreaView>
   );
 }
@@ -87,7 +100,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 24,
-    gap: 14,
+    gap: 12,
   },
   scroll: { padding: 16 },
   card: {
@@ -96,19 +109,36 @@ const styles = StyleSheet.create({
     padding: 20,
     borderWidth: 1,
     borderColor: COLORS.border,
-    gap: 16,
+    gap: 14,
   },
-  image: { width: '100%', height: 250, resizeMode: 'contain' },
-  title: { fontSize: 20, fontWeight: '700', color: COLORS.text },
-  price: { fontSize: 24, fontWeight: '800', color: COLORS.secondary },
-  note: { color: COLORS.textLight, fontSize: 14 },
-  error: { color: COLORS.error, textAlign: 'center' },
+  image: {
+    width: '100%',
+    height: 230,
+    borderRadius: 12,
+    backgroundColor: COLORS.border,
+  },
+  title: { fontSize: 20, fontWeight: '800', color: COLORS.text },
+  price: { fontSize: 22, fontWeight: '800', color: COLORS.primary },
+  description: {
+    fontSize: 14,
+    lineHeight: 22,
+    color: COLORS.text,
+  },
+  note: { color: COLORS.textLight, fontSize: 13 },
+  errorMssv: {
+    color: COLORS.primary,
+    fontSize: 18,
+    fontWeight: '800',
+    textAlign: 'center',
+  },
+  error: { color: COLORS.error, textAlign: 'center', fontSize: 15 },
   button: {
     backgroundColor: COLORS.primary,
     paddingHorizontal: 20,
     paddingVertical: 14,
     borderRadius: 12,
     alignItems: 'center',
+    marginTop: 6,
   },
   buttonText: { color: '#FFFFFF', fontWeight: '700', fontSize: 16 },
 });

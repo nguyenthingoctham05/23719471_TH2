@@ -1,12 +1,12 @@
-# Họ tên: NGUYỄN THỊ NGỌC THẮM | MSSV: 23719471 | Stamp: #6325BD | Số cuối: 1
+# Họ tên: NGUYỄN THỊ NGỌC THẮM | MSSV: 23719471 | Stamp: #041913 | Số cuối: 1
 - **URL Clone HTTPS**: https://github.com/Zy-LTN/23719471_TH2.git
 - **Hàng VARIANT (Số cuối 1)**:
-  - Watermark: Dưới
-  - Ô Login: phone
-  - Thứ tự Tab: Shop → Giỏ → Tôi (shopFirst)
-  - Haptic: selection
-  - Phí ship: B (`BASE_SHIP_FEE + Math.round(km * 1500) + 2000`)
-  - Detail: card (presentation: card)
+  - Watermark: Dưới (watermarkAtTop: false)
+  - Ô Login: phone (authField: 'phone')
+  - Thứ tự Tab: Shop → Giỏ → Tôi (tabOrder: 'shopFirst')
+  - Haptic: selection (hapticOnAdd: 'selection')
+  - Phí ship: B (shipFormula: 'B' -> `BASE_SHIP_FEE + Math.round(km * 1500) + 2000`)
+  - Detail: card (detailPresentation: 'card')
 
 ---
 

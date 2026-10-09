@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -16,22 +16,12 @@ export default function LoginScreen() {
   const [value, setValue] = useState('');
   const [error, setError] = useState('');
   const login = useAuthStore(state => state.login);
-  const isPhone = VARIANT.loginField === 'phone';
+  const isPhone = VARIANT.authField === 'phone';
 
   const handleLogin = () => {
     const input = value.trim();
-    const valid = isPhone
-      ? /^0\d{9}$/.test(input)
-      : /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
-
-    if (!valid) {
-      setError(
-        `${STUDENT.mssv}: ${
-          isPhone
-            ? 'Nhập số điện thoại 10 chữ số, bắt đầu bằng 0.'
-            : 'Nhập email hợp lệ.'
-        }`,
-      );
+    if (!input) {
+      setError(`${STUDENT.mssv}: Vui lòng không để trống thông tin đăng nhập.`);
       return;
     }
 
@@ -41,7 +31,7 @@ export default function LoginScreen() {
 
   return (
     <SafeAreaView style={styles.screen}>
-      {VARIANT.watermark === 'top' && <Watermark />}
+      {VARIANT.watermarkAtTop && <Watermark />}
 
       <View style={styles.content}>
         <Text style={styles.title}>KTXGO</Text>
@@ -51,7 +41,11 @@ export default function LoginScreen() {
 
         <TextInput
           style={styles.input}
-          placeholder={isPhone ? 'Số điện thoại' : 'Email'}
+          placeholder={
+            isPhone
+              ? `Số điện thoại — ${STUDENT.mssv}`
+              : `Email — ${STUDENT.mssv}@iuh.edu.vn`
+          }
           placeholderTextColor={COLORS.textLight}
           keyboardType={isPhone ? 'phone-pad' : 'email-address'}
           autoCapitalize="none"
@@ -59,7 +53,7 @@ export default function LoginScreen() {
           value={value}
           onChangeText={text => {
             setValue(text);
-            setError('');
+            if (error) setError('');
           }}
         />
 
@@ -72,11 +66,11 @@ export default function LoginScreen() {
         </Pressable>
 
         <Text style={styles.note}>
-          Đăng nhập giả lập cho bài thực hành
+          Đăng nhập giả lập cho bài thực hành KTXGo
         </Text>
       </View>
 
-      {VARIANT.watermark === 'bottom' && <Watermark />}
+      {!VARIANT.watermarkAtTop && <Watermark />}
     </SafeAreaView>
   );
 }
@@ -102,6 +96,7 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     textAlign: 'center',
     marginBottom: 32,
+    fontSize: 15,
   },
   input: {
     backgroundColor: COLORS.surface,
@@ -117,6 +112,8 @@ const styles = StyleSheet.create({
   error: {
     color: COLORS.error,
     marginBottom: 12,
+    textAlign: 'center',
+    fontWeight: '600',
   },
   button: {
     backgroundColor: COLORS.primary,
@@ -133,5 +130,6 @@ const styles = StyleSheet.create({
     color: COLORS.textLight,
     textAlign: 'center',
     marginTop: 20,
+    fontSize: 13,
   },
 });

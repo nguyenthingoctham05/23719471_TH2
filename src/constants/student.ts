@@ -3,47 +3,38 @@ export const STUDENT = {
   hoTen: 'NGUYỄN THỊ NGỌC THẮM',
 } as const;
 
-export const seed = 23719471;
+const soCuoi = Number(STUDENT.mssv.slice(-1));
+export const LAST_DIGIT = soCuoi;
+export const STUDENT_SEED = parseInt(STUDENT.mssv.slice(-3), 10) || 1;
 
-export const DEBOUNCE_MS = 300;
-export const STALE_TIME_MS = 1000 * 60 * 5;
-export const PRICE_MULTIPLIER = 1000;
-export const BASE_SHIP_FEE = 10000;
-export const ROOM_LABEL = 'P.245';
+/** Không viết cứng các số dưới đây ở màn hình — phải import từ file này */
+export const DEBOUNCE_MS = 300 + (STUDENT_SEED % 5) * 100;
+// 300..700
+export const STALE_TIME_MS = 10_000 + (STUDENT_SEED % 20) * 1000;
+// 10s..29s
+export const PRICE_MULTIPLIER = 15000 + (STUDENT_SEED % 40) * 500;
+export const BASE_SHIP_FEE = 8000 + (STUDENT_SEED % 10) * 1000;
+// phí ship nền
+export const ROOM_LABEL = `P.${100 + (STUDENT_SEED % 400)}`;
+// phòng giao demo
+export const BANNER_IMAGE_ID = 200 + (STUDENT_SEED % 150);
 
-export type VariantType = {
-  watermark: 'top' | 'bottom';
-  loginField: 'email' | 'phone';
-  tabOrder: 'shopFirst' | 'cartFirst';
-  haptic: 'impact' | 'selection';
-  shippingFormula: 'A' | 'B';
-  detailPresentation: 'card' | 'modal';
-};
-
-// MSSV 23719471 kết thúc bằng số 1:
-// Watermark: Dưới ('bottom')
-// Ô Login: phone
-// Thứ tự Tab: Shop -> Giỏ -> Tôi ('shopFirst')
-// Haptic: selection
-// Phí: B
-// Detail: card
-export const VARIANT: VariantType = {
-  watermark: 'bottom',
-  loginField: 'phone',
-  tabOrder: 'shopFirst',
-  haptic: 'selection',
-  shippingFormula: 'B',
-  detailPresentation: 'card',
-};
+export const VARIANT = {
+  watermarkAtTop: LAST_DIGIT % 2 === 0,
+  authField: LAST_DIGIT % 2 === 0 ? 'email' : 'phone',
+  tabOrder: LAST_DIGIT >= 5 ? 'cartFirst' : 'shopFirst',
+  /** 'impact' | 'selection' — Haptic khi thêm giỏ */
+  hapticOnAdd: LAST_DIGIT % 3 === 0 ? 'impact' : 'selection',
+  /** công thức phí: A = nền + km*2000; B = nền + km*1500 + 2000 cố định */
+  shipFormula: LAST_DIGIT % 2 === 0 ? 'A' : 'B',
+  detailPresentation: LAST_DIGIT >= 5 ? 'modal' : 'card',
+} as const;
 
 export function examStamp(): string {
   const raw = `TH2|${STUDENT.mssv}|${STUDENT.hoTen}`;
-  if (STUDENT.mssv === '23719471') {
-    return '6325BD';
-  }
-  let hash = 0;
+  let h = 5381;
   for (let i = 0; i < raw.length; i++) {
-    hash = ((hash << 5) - hash + raw.charCodeAt(i)) | 0;
+    h = Math.imul(h, 33) ^ raw.charCodeAt(i);
   }
-  return (Math.abs(hash) % 0xffffff).toString(16).toUpperCase().padStart(6, '0');
+  return String(Math.abs(h) % 1000000).padStart(6, '0');
 }

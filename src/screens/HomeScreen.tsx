@@ -6,6 +6,7 @@ import {
   Pressable,
   ActivityIndicator,
   StyleSheet,
+  Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { FlashList } from '@shopify/flash-list';
@@ -16,7 +17,7 @@ import type { ShopStackParamList } from '@navigation/ShopStack';
 import type { MainTabParamList } from '@navigation/MainTabs';
 import ProductCard from '@components/ProductCard';
 import Watermark from '@components/Watermark';
-import { useProducts } from '@services/productApi';
+import { useProductsQuery } from '@services/productApi';
 import { triggerHaptic } from '@services/haptic';
 import { useCartStore } from '@stores/cartStore';
 import { useDebouncedValue } from '@hooks/useDebouncedValue';
@@ -25,6 +26,7 @@ import {
   VARIANT,
   ROOM_LABEL,
   DEBOUNCE_MS,
+  BANNER_IMAGE_ID,
 } from '@constants/student';
 import { COLORS } from '@constants/theme';
 
@@ -36,8 +38,8 @@ type Props = CompositeScreenProps<
 export default function HomeScreen({ navigation }: Props) {
   const [search, setSearch] = useState('');
   const debouncedSearch = useDebouncedValue(search, DEBOUNCE_MS);
-  const result = useProducts();
-  const add = useCartStore(state => state.add);
+  const result = useProductsQuery();
+  const addItem = useCartStore(state => state.addItem);
   const quantity = useCartStore(state =>
     state.items.reduce((sum, item) => sum + item.quantity, 0),
   );
@@ -52,9 +54,10 @@ export default function HomeScreen({ navigation }: Props) {
     <SafeAreaView
       edges={['top', 'left', 'right']}
       style={styles.screen}>
-      {VARIANT.watermark === 'top' && <Watermark />}
+      {VARIANT.watermarkAtTop && <Watermark />}
 
       <View style={styles.content}>
+        {/* Header KTXGO + Giao tận ROOM_LABEL */}
         <View style={styles.header}>
           <View>
             <Text style={styles.brand}>KTXGO</Text>
@@ -73,6 +76,14 @@ export default function HomeScreen({ navigation }: Props) {
           </Pressable>
         </View>
 
+        {/* Banner KTX */}
+        <Image
+          source={{ uri: `https://picsum.photos/id/${BANNER_IMAGE_ID}/800/240` }}
+          style={styles.banner}
+          resizeMode="cover"
+        />
+
+        {/* Ô tìm kiếm controlled debounce */}
         <TextInput
           style={styles.search}
           placeholder={`Tìm món (debounce) — ${STUDENT.mssv}`}
@@ -81,10 +92,11 @@ export default function HomeScreen({ navigation }: Props) {
           onChangeText={setSearch}
         />
 
+        {/* 3 trạng thái: Đang tải · Lỗi mạng (Thử lại) · Có dữ liệu */}
         {result.isPending ? (
           <View style={styles.center}>
             <ActivityIndicator size="large" color={COLORS.primary} />
-            <Text style={styles.subtitle}>Đang tải món...</Text>
+            <Text style={styles.subtitle}>Đang tải món ăn KTX...</Text>
           </View>
         ) : result.isError ? (
           <View style={styles.center}>
@@ -117,7 +129,7 @@ export default function HomeScreen({ navigation }: Props) {
                       navigation.navigate('Detail', { id: item.id })
                     }
                     onAdd={() => {
-                      add(item);
+                      addItem(item);
                       triggerHaptic();
                     }}
                   />
@@ -128,7 +140,7 @@ export default function HomeScreen({ navigation }: Props) {
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={
                 <Text style={styles.empty}>
-                  Không tìm thấy sản phẩm phù hợp.
+                  Không tìm thấy món phù hợp với từ khóa "{debouncedSearch}".
                 </Text>
               }
             />
@@ -136,7 +148,7 @@ export default function HomeScreen({ navigation }: Props) {
         )}
       </View>
 
-      {VARIANT.watermark === 'bottom' && <Watermark />}
+      {!VARIANT.watermarkAtTop && <Watermark />}
     </SafeAreaView>
   );
 }
@@ -149,26 +161,34 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     paddingHorizontal: 12,
-    paddingTop: 12,
+    paddingTop: 8,
   },
   header: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16,
+    marginBottom: 10,
   },
   brand: {
     color: COLORS.primary,
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: '900',
   },
   subtitle: {
     color: COLORS.textLight,
-    marginTop: 8,
+    marginTop: 2,
+    fontSize: 13,
+  },
+  banner: {
+    width: '100%',
+    height: 75,
+    borderRadius: 10,
+    marginBottom: 10,
+    backgroundColor: COLORS.border,
   },
   cartButton: {
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingVertical: 10,
     borderRadius: 12,
     backgroundColor: COLORS.surface,
     borderWidth: 1,
@@ -184,15 +204,15 @@ const styles = StyleSheet.create({
     right: -6,
     backgroundColor: COLORS.secondary,
     borderRadius: 12,
-    minWidth: 24,
+    minWidth: 22,
     paddingHorizontal: 5,
-    paddingVertical: 3,
+    paddingVertical: 2,
     alignItems: 'center',
   },
   badgeText: {
     color: COLORS.surface,
     fontWeight: '700',
-    fontSize: 12,
+    fontSize: 11,
   },
   search: {
     backgroundColor: COLORS.surface,
@@ -200,9 +220,9 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     borderRadius: 12,
     paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingVertical: 10,
     color: COLORS.text,
-    marginBottom: 12,
+    marginBottom: 10,
   },
   list: {
     flex: 1,

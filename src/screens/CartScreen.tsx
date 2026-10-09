@@ -22,9 +22,8 @@ export default function CartScreen() {
   const items = useCartStore(state => state.items);
   const shippingFee = useCartStore(state => state.shippingFee);
   const changeQty = useCartStore(state => state.changeQty);
-  const remove = useCartStore(state => state.remove);
+  const removeItem = useCartStore(state => state.removeItem);
 
-  const quantity = items.reduce((sum, item) => sum + item.quantity, 0);
   const subtotal = items.reduce(
     (sum, item) =>
       sum + Math.round(item.product.price * PRICE_MULTIPLIER) * item.quantity,
@@ -33,7 +32,7 @@ export default function CartScreen() {
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
-      {VARIANT.watermark === 'top' && <Watermark />}
+      {VARIANT.watermarkAtTop && <Watermark />}
 
       <View style={styles.content}>
         <View style={styles.headerBanner}>
@@ -46,14 +45,18 @@ export default function CartScreen() {
           keyExtractor={item => item.product.id}
           contentContainerStyle={items.length === 0 ? styles.emptyList : styles.listContent}
           ListEmptyComponent={
-            <Text style={styles.emptyText}>Giỏ hàng chưa có sản phẩm.</Text>
+            <Text style={styles.emptyText}>Giỏ hàng chưa có sản phẩm nào.</Text>
           }
           renderItem={({ item }) => {
             const unitPrice = Math.round(item.product.price * PRICE_MULTIPLIER);
 
             return (
               <View style={styles.card}>
-                <Image source={{ uri: item.product.image }} style={styles.image} />
+                <Image
+                  source={{ uri: item.product.image }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
 
                 <View style={styles.info}>
                   <Text style={styles.title} numberOfLines={2}>
@@ -91,7 +94,7 @@ export default function CartScreen() {
                       style={styles.removeButton}
                       accessibilityLabel="Xóa sản phẩm"
                       onPress={() => {
-                        remove(item.product.id);
+                        removeItem(item.product.id);
                         triggerHaptic();
                       }}>
                       <Text style={styles.removeText}>Xóa</Text>
@@ -106,20 +109,23 @@ export default function CartScreen() {
         {items.length > 0 && (
           <View style={styles.summary}>
             <Text style={styles.deliveryInfo}>Giao đến {ROOM_LABEL}</Text>
+
             <Text style={styles.shippingInfo}>
-              Phí ship: {shippingFee === null ? 'Chưa xác định' : money(shippingFee)} (công thức {VARIANT.shippingFormula})
+              {shippingFee !== null
+                ? `Phí ship: ${money(shippingFee)} (công thức ${VARIANT.shipFormula})`
+                : 'Chưa ước tính phí — mở tab Tôi'}
             </Text>
 
             <View style={styles.totalRow}>
               <Text style={styles.total}>
-                Tổng hàng: {money(subtotal + (shippingFee ?? 0))}
+                Tổng tiền: {money(subtotal + (shippingFee ?? 0))}
               </Text>
             </View>
           </View>
         )}
       </View>
 
-      {VARIANT.watermark === 'bottom' && <Watermark />}
+      {!VARIANT.watermarkAtTop && <Watermark />}
     </SafeAreaView>
   );
 }
@@ -164,10 +170,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     gap: 12,
   },
-  image: { width: 70, height: 90, resizeMode: 'contain' },
+  image: {
+    width: 75,
+    height: 75,
+    borderRadius: 8,
+    backgroundColor: COLORS.border,
+  },
   info: { flex: 1 },
-  title: { color: COLORS.text, fontWeight: '600', fontSize: 14 },
-  price: { color: COLORS.secondary, fontWeight: '700', marginTop: 6 },
+  title: { color: COLORS.text, fontWeight: '700', fontSize: 14 },
+  price: { color: COLORS.secondary, fontWeight: '700', marginTop: 4 },
   controls: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10 },
   qtyButton: {
     width: 30,
@@ -182,7 +193,6 @@ const styles = StyleSheet.create({
   quantity: { color: COLORS.text, fontWeight: '700' },
   removeButton: { marginLeft: 'auto', padding: 6 },
   removeText: { color: COLORS.error, fontWeight: '600' },
-  lineTotal: { color: COLORS.text, fontSize: 12, marginTop: 8 },
   summary: {
     backgroundColor: COLORS.surface,
     borderRadius: 12,
@@ -190,20 +200,13 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     padding: 14,
     marginBottom: 12,
-    gap: 10,
-  },
-  row: { flexDirection: 'row', justifyContent: 'space-between', gap: 8 },
-  label: { color: COLORS.textLight },
-  value: { color: COLORS.text, fontWeight: '600' },
-  shipping: { color: COLORS.secondary, fontWeight: '700' },
-  hint: { color: COLORS.textLight, fontSize: 12 },
-  totalRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    borderTopWidth: 1,
-    borderTopColor: COLORS.border,
-    paddingTop: 10,
     gap: 8,
   },
-  total: { color: COLORS.primary, fontWeight: '800', fontSize: 17 },
+  totalRow: {
+    borderTopWidth: 1,
+    borderTopColor: COLORS.border,
+    paddingTop: 8,
+    marginTop: 4,
+  },
+  total: { color: COLORS.primary, fontWeight: '800', fontSize: 18 },
 });

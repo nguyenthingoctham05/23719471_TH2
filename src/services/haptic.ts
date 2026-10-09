@@ -1,16 +1,14 @@
-﻿import HapticFeedback from 'react-native-haptic-feedback';
+import HapticFeedback from 'react-native-haptic-feedback';
 import { VARIANT } from '@constants/student';
 
 export function triggerHaptic() {
   try {
-    HapticFeedback.trigger(
-      VARIANT.haptic === 'selection' ? 'selection' : 'impactLight',
-      {
-        enableVibrateFallback: true,
-        ignoreAndroidSystemSettings: false,
-      },
-    );
+    const type = VARIANT.hapticOnAdd === 'impact' ? 'impactMedium' : 'selection';
+    HapticFeedback.trigger(type, {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false,
+    });
   } catch {
-    // Haptic không hoạt động thì vẫn cho phép mua hàng.
+    // Haptic không hoạt động thì vẫn tiếp tục bình thường
   }
 }

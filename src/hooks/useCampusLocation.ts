@@ -59,7 +59,7 @@ export function useCampusLocation() {
     setError('');
 
     const fee =
-      VARIANT.shippingFormula === 'A'
+      VARIANT.shipFormula === 'A'
         ? BASE_SHIP_FEE + Math.round(distance * 2000)
         : BASE_SHIP_FEE + Math.round(distance * 1500) + 2000;
     setShippingFee(fee);

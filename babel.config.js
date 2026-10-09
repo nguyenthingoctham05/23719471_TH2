@@ -1,4 +1,4 @@
-﻿module.exports = {
+module.exports = {
   presets: ['module:@react-native/babel-preset'],
   plugins: [
     [
@@ -14,6 +14,7 @@
           '@stores': './src/stores',
           '@hooks': './src/hooks',
           '@navigation': './src/navigation',
+          '@data': './src/data',
         },
       },
     ],

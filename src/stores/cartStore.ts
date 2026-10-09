@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand';
+import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { STUDENT, PRICE_MULTIPLIER } from '@constants/student';
@@ -8,6 +8,7 @@ export interface Product {
   title: string;
   price: number;
   image: string;
+  description?: string;
 }
 
 export interface CartItem {
@@ -18,22 +19,22 @@ export interface CartItem {
 interface CartState {
   items: CartItem[];
   shippingFee: number | null;
-  add: (product: Product) => void;
-  remove: (id: string) => void;
+  addItem: (product: Product) => void;
+  removeItem: (id: string) => void;
   changeQty: (id: string, quantity: number) => void;
   clear: () => void;
   totalQuantity: () => number;
   totalAmount: () => number;
   setShippingFee: (fee: number | null) => void;
+  // Aliases for compatibility
+  add: (product: Product) => void;
+  remove: (id: string) => void;
 }
 
 export const useCartStore = create<CartState>()(
   persist(
-    (set, get) => ({
-      items: [],
-      shippingFee: null,
-
-      add: (product) => {
+    (set, get) => {
+      const addItem = (product: Product) => {
         set((state) => {
           const exists = state.items.some(
             item => item.product.id === product.id,
@@ -49,42 +50,52 @@ export const useCartStore = create<CartState>()(
               : [...state.items, { product, quantity: 1 }],
           };
         });
-      },
+      };
 
-      remove: (id) => {
+      const removeItem = (id: string) => {
         set((state) => ({
           items: state.items.filter(item => item.product.id !== id),
         }));
-      },
+      };
 
-      changeQty: (id, quantity) => {
-        if (!Number.isFinite(quantity)) return;
+      return {
+        items: [],
+        shippingFee: null,
 
-        set((state) => ({
-          items: state.items.map(item =>
-            item.product.id === id
-              ? { ...item, quantity: Math.max(1, Math.floor(quantity)) }
-              : item,
+        addItem,
+        removeItem,
+        add: addItem,
+        remove: removeItem,
+
+        changeQty: (id, quantity) => {
+          if (!Number.isFinite(quantity)) return;
+
+          set((state) => ({
+            items: state.items.map(item =>
+              item.product.id === id
+                ? { ...item, quantity: Math.max(1, Math.floor(quantity)) }
+                : item,
+            ),
+          }));
+        },
+
+        clear: () => set({ items: [] }),
+
+        totalQuantity: () =>
+          get().items.reduce((sum, item) => sum + item.quantity, 0),
+
+        totalAmount: () =>
+          get().items.reduce(
+            (sum, item) =>
+              sum +
+              Math.round(item.product.price * PRICE_MULTIPLIER) *
+                item.quantity,
+            0,
           ),
-        }));
-      },
 
-      clear: () => set({ items: [] }),
-
-      totalQuantity: () =>
-        get().items.reduce((sum, item) => sum + item.quantity, 0),
-
-      totalAmount: () =>
-        get().items.reduce(
-          (sum, item) =>
-            sum +
-            Math.round(item.product.price * PRICE_MULTIPLIER) *
-              item.quantity,
-          0,
-        ),
-
-      setShippingFee: (fee) => set({ shippingFee: fee }),
-    }),
+        setShippingFee: (fee) => set({ shippingFee: fee }),
+      };
+    },
     {
       name: `ktxgo-cart-${STUDENT.mssv}`,
       storage: createJSONStorage(() => AsyncStorage),

@@ -13,9 +13,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCampusLocation } from '@hooks/useCampusLocation';
 import { useAuthStore } from '@stores/authStore';
 import { useCartStore } from '@stores/cartStore';
-import { triggerHaptic } from '@services/haptic';
 import {
-  BASE_SHIP_FEE,
   ROOM_LABEL,
   STUDENT,
   VARIANT,
@@ -24,56 +22,69 @@ import {
 import { COLORS } from '@constants/theme';
 import Watermark from '@components/Watermark';
 
-const STATUS_LABEL = {
-  idle: 'Chưa xin quyền vị trí',
-  granted: 'Đã cấp quyền vị trí',
-  denied: 'Đã từ chối quyền vị trí',
-  blocked: 'Quyền vị trí bị chặn',
-};
-
 export default function MeScreen() {
   const location = useCampusLocation();
+  const token = useAuthStore(state => state.token);
   const logout = useAuthStore(state => state.logout);
   const shippingFee = useCartStore(state => state.shippingFee);
   const setShippingFee = useCartStore(state => state.setShippingFee);
+
+  const shortToken = token
+    ? `${token.slice(0, 15)}...${token.slice(-6)}`
+    : 'Chưa có token';
 
   const openSettings = async () => {
     try {
       await Linking.openSettings();
     } catch {
-      Alert.alert('Thông báo', 'Không mở được cài đặt ứng dụng.');
+      Alert.alert('Thông báo', 'Không thể mở cài đặt ứng dụng.');
     }
   };
 
   return (
     <SafeAreaView style={styles.screen} edges={['top', 'left', 'right']}>
-      {VARIANT.watermark === 'top' && <Watermark />}
+      {VARIANT.watermarkAtTop && <Watermark />}
 
       <ScrollView contentContainerStyle={styles.content}>
         <View style={styles.headerBanner}>
           <Text style={styles.bannerTitle}>TÔI · LOCATION</Text>
         </View>
 
+        {/* Thông tin định danh + Token rút gọn */}
         <View style={styles.card}>
           <Text style={styles.name}>{STUDENT.hoTen}</Text>
           <Text style={styles.text}>
-            {STUDENT.mssv} · #{examStamp()}
+            MSSV: {STUDENT.mssv} · Stamp: #{examStamp()}
           </Text>
-          <Text style={styles.note}>Phòng giao: {ROOM_LABEL}</Text>
+          <Text style={styles.tokenText}>
+            Token: <Text style={styles.tokenValue}>{shortToken}</Text>
+          </Text>
+          <Text style={styles.note}>Phòng giao mặc định: {ROOM_LABEL}</Text>
         </View>
 
+        {/* Trạng thái quyền & Phí ship */}
         <View style={styles.card}>
           <Text style={styles.text}>
-            Quyền: <Text style={styles.statusText}>{location.status}</Text>
+            Quyền vị trí: <Text style={styles.statusText}>{location.status}</Text>
           </Text>
 
+          {location.status === 'denied' && (
+            <View style={styles.hintBox}>
+              <Text style={styles.hintText}>
+                ⚠️ Bạn đã từ chối quyền. Vui lòng bấm nút "Lấy vị trí ước tính ship" bên dưới để xin cấp quyền lại.
+              </Text>
+            </View>
+          )}
+
           {location.coords && (
-            <Text style={styles.text}>
+            <Text style={styles.distanceText}>
               ≈ {location.km?.toFixed(1)} km tới cổng KTX
             </Text>
           )}
 
-          <Text style={styles.feeLabel}>Phí ship ước tính</Text>
+          <Text style={styles.feeLabel}>
+            Phí ship ước tính (công thức {VARIANT.shipFormula}):
+          </Text>
           <Text style={styles.fee}>
             {shippingFee === null
               ? 'Chưa tính'
@@ -91,6 +102,7 @@ export default function MeScreen() {
           )}
         </View>
 
+        {/* Các nút hành động theo Câu 3b */}
         <Pressable
           style={[styles.button, location.loading && styles.disabled]}
           disabled={location.loading}
@@ -123,28 +135,28 @@ export default function MeScreen() {
         </Pressable>
       </ScrollView>
 
-      {VARIANT.watermark === 'bottom' && <Watermark />}
+      {!VARIANT.watermarkAtTop && <Watermark />}
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: COLORS.background },
-  content: { padding: 16, gap: 16 },
-  heading: { fontSize: 24, fontWeight: '800', color: COLORS.text },
+  content: { padding: 16, gap: 14 },
   card: {
     backgroundColor: COLORS.surface,
     borderRadius: 14,
     borderWidth: 1,
     borderColor: COLORS.border,
     padding: 16,
-    gap: 12,
+    gap: 10,
   },
   headerBanner: {
     backgroundColor: COLORS.primary,
     borderRadius: 12,
     paddingVertical: 12,
     alignItems: 'center',
+    marginBottom: 4,
   },
   bannerTitle: {
     color: '#FFFFFF',
@@ -153,10 +165,24 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
   },
   name: { fontSize: 18, fontWeight: '800', color: COLORS.primary },
-  title: { fontSize: 18, fontWeight: '700', color: COLORS.text },
   text: { color: COLORS.text, fontSize: 14 },
+  tokenText: { color: COLORS.textLight, fontSize: 13 },
+  tokenValue: { color: COLORS.text, fontWeight: '700' },
   statusText: { fontWeight: '700', color: COLORS.primary },
-  note: { color: COLORS.textLight, fontSize: 12, lineHeight: 19 },
+  distanceText: { color: COLORS.text, fontWeight: '600', fontSize: 14 },
+  hintBox: {
+    backgroundColor: '#FEF3C7',
+    padding: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: '#FDE68A',
+  },
+  hintText: {
+    color: '#B45309',
+    fontSize: 13,
+    lineHeight: 18,
+  },
+  note: { color: COLORS.textLight, fontSize: 13 },
   error: { color: COLORS.error, fontSize: 13 },
   feeLabel: { color: COLORS.textLight, fontSize: 13, marginTop: 4 },
   fee: { color: COLORS.secondary, fontSize: 22, fontWeight: '900' },
