@@ -178,7 +178,7 @@ const styles = StyleSheet.create({
   },
   info: { flex: 1 },
   title: { color: COLORS.text, fontWeight: '700', fontSize: 14 },
-  price: { color: COLORS.secondary, fontWeight: '700', marginTop: 4 },
+  price: { color: COLORS.primary, fontWeight: '700', marginTop: 4 },
   controls: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10 },
   qtyButton: {
     width: 30,
