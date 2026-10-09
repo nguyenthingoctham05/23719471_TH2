@@ -13,9 +13,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import type { ShopStackParamList } from '@navigation/ShopStack';
 import { useProductQuery } from '@services/productApi';
-import { triggerHaptic } from '@services/haptic';
 import { useCartStore } from '@stores/cartStore';
-import { PRICE_MULTIPLIER, STUDENT, VARIANT } from '@constants/student';
+import { PRICE_MULTIPLIER, STUDENT, VARIANT, triggerHaptic } from '@constants/student';
 import { COLORS } from '@constants/theme';
 import Watermark from '@components/Watermark';
 

@@ -18,7 +18,6 @@ import type { MainTabParamList } from '@navigation/MainTabs';
 import ProductCard from '@components/ProductCard';
 import Watermark from '@components/Watermark';
 import { useProductsQuery } from '@services/productApi';
-import { triggerHaptic } from '@services/haptic';
 import { useCartStore } from '@stores/cartStore';
 import { useDebouncedValue } from '@hooks/useDebouncedValue';
 import {
@@ -27,6 +26,7 @@ import {
   ROOM_LABEL,
   DEBOUNCE_MS,
   BANNER_IMAGE_ID,
+  triggerHaptic,
 } from '@constants/student';
 import { COLORS } from '@constants/theme';
 

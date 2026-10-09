@@ -38,3 +38,17 @@ export function examStamp(): string {
   }
   return String(Math.abs(h) % 1000000).padStart(6, '0');
 }
+
+export function triggerHaptic() {
+  try {
+    const HapticFeedback = require('react-native-haptic-feedback').default;
+    const type = VARIANT.hapticOnAdd === 'impact' ? 'impactMedium' : 'selection';
+    HapticFeedback?.trigger?.(type, {
+      enableVibrateFallback: true,
+      ignoreAndroidSystemSettings: false,
+    });
+  } catch {
+    // Ignore fallback
+  }
+}
+

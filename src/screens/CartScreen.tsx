@@ -9,8 +9,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useCartStore } from '@stores/cartStore';
-import { triggerHaptic } from '@services/haptic';
-import { PRICE_MULTIPLIER, ROOM_LABEL, VARIANT } from '@constants/student';
+import { PRICE_MULTIPLIER, ROOM_LABEL, VARIANT, triggerHaptic } from '@constants/student';
 import { COLORS } from '@constants/theme';
 import Watermark from '@components/Watermark';
 

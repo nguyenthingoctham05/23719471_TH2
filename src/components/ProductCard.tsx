@@ -21,6 +21,12 @@ export default function ProductCard({ product, onDetail, onAdd }: Props) {
             source={{ uri: product.image }}
             style={styles.image}
             resizeMode="cover"
+            onError={e => {
+              console.log('[IMG_ERR]', product.title, e.nativeEvent.error);
+            }}
+            onLoad={() => {
+              console.log('[IMG_LOADED]', product.title);
+            }}
           />
         </View>
 

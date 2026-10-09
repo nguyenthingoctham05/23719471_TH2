@@ -37,7 +37,7 @@ const KTX_ITEMS = [
   {
     title: 'Phở bò tái nạm gầu',
     price: 1.31,
-    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWxCckcU2Q07fv9S8GvMW1zU41yNi_Tk-iAvpBbTQbfQsyRwRwjd084ttW&s=10',
+    image: 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSWxCckcU2Q07fv9S8GvMW1zU41yNi_Tk-iAvpBbTQbfQsyRwRwjd084ttW',
     description: 'Phở truyền thống nước hầm xương bò 12 tiếng thanh ngọt, bánh phở mềm cùng bò tái thơm ngậy.',
   },
   {
