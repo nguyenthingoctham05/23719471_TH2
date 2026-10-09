@@ -1,5 +1,5 @@
 # Họ tên: NGUYỄN THỊ NGỌC THẮM | MSSV: 23719471 | Stamp: #041913 | Số cuối: 1
-- **URL Clone HTTPS**: https://github.com/Zy-LTN/23719471_TH2.git
+- **URL Clone HTTPS**: https://github.com/nguyenthingoctham05/23719471_TH2.git
 - **Hàng VARIANT (Số cuối 1)**:
   - Watermark: Dưới (watermarkAtTop: false)
   - Ô Login: phone (authField: 'phone')
