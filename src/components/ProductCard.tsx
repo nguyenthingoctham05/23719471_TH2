@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { View, Text, Image, Pressable, StyleSheet } from 'react-native';
 import type { Product } from '@stores/cartStore';
 import { PRICE_MULTIPLIER } from '@constants/student';
@@ -16,11 +16,14 @@ export default function ProductCard({ product, onDetail, onAdd }: Props) {
   return (
     <View style={styles.card}>
       <Pressable onPress={onDetail}>
-        <Image
-          source={{ uri: product.image }}
-          style={styles.image}
-          resizeMode="contain"
-        />
+        <View style={styles.imageContainer}>
+          <Image
+            source={{ uri: product.image }}
+            style={styles.image}
+            resizeMode="cover"
+          />
+        </View>
+
         <Text style={styles.title} numberOfLines={2}>
           {product.title}
         </Text>
@@ -49,10 +52,17 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     padding: 10,
   },
-  image: {
+  imageContainer: {
     width: '100%',
     height: 110,
+    backgroundColor: COLORS.background,
+    borderRadius: 10,
     marginBottom: 10,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
   title: {
     height: 40,

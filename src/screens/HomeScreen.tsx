@@ -77,11 +77,16 @@ export default function HomeScreen({ navigation }: Props) {
         </View>
 
         {/* Banner KTX */}
-        <Image
-          source={{ uri: `https://picsum.photos/id/${BANNER_IMAGE_ID}/800/240` }}
-          style={styles.banner}
-          resizeMode="cover"
-        />
+        <View style={styles.bannerContainer}>
+          <Image
+            source={{ uri: `https://picsum.photos/id/${BANNER_IMAGE_ID}/800/240` }}
+            style={styles.banner}
+            resizeMode="cover"
+          />
+          <View style={styles.bannerOverlay}>
+            <Text style={styles.bannerText}>🍱 KTXGo · Đặt đồ ăn & ship tận phòng sinh viên</Text>
+          </View>
+        </View>
 
         {/* Ô tìm kiếm controlled debounce */}
         <TextInput
@@ -179,12 +184,41 @@ const styles = StyleSheet.create({
     marginTop: 2,
     fontSize: 13,
   },
-  banner: {
+  bannerContainer: {
     width: '100%',
     height: 75,
     borderRadius: 10,
     marginBottom: 10,
-    backgroundColor: COLORS.border,
+    backgroundColor: COLORS.primary,
+    overflow: 'hidden',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  banner: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    width: '100%',
+    height: '100%',
+  },
+  bannerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(29, 78, 216, 0.45)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+  },
+  bannerText: {
+    color: '#FFFFFF',
+    fontWeight: '800',
+    fontSize: 13,
+    textAlign: 'center',
   },
   cartButton: {
     paddingHorizontal: 14,

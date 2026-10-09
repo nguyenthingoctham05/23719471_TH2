@@ -61,11 +61,14 @@ export default function DetailScreen({ route }: Props) {
         ) : (
           <ScrollView contentContainerStyle={styles.scroll}>
             <View style={styles.card}>
-              <Image
-                source={{ uri: product.image }}
-                style={styles.image}
-                resizeMode="cover"
-              />
+              <View style={styles.imageContainer}>
+                <Image
+                  source={{ uri: product.image }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+              </View>
+
               <Text style={styles.title}>{product.title}</Text>
               <Text style={styles.price}>
                 {Math.round(product.price * PRICE_MULTIPLIER).toLocaleString('vi-VN')} đ
@@ -111,11 +114,16 @@ const styles = StyleSheet.create({
     borderColor: COLORS.border,
     gap: 14,
   },
+  imageContainer: {
+    width: '100%',
+    height: 220,
+    borderRadius: 12,
+    backgroundColor: COLORS.background,
+    overflow: 'hidden',
+  },
   image: {
     width: '100%',
-    height: 230,
-    borderRadius: 12,
-    backgroundColor: COLORS.border,
+    height: '100%',
   },
   title: { fontSize: 20, fontWeight: '800', color: COLORS.text },
   price: { fontSize: 22, fontWeight: '800', color: COLORS.primary },

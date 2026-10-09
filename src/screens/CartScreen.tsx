@@ -18,11 +18,71 @@ function money(amount: number) {
   return `${amount.toLocaleString('vi-VN')} đ`;
 }
 
+function CartItemRow({ item }: { item: any }) {
+  const unitPrice = Math.round(item.product.price * PRICE_MULTIPLIER);
+  const changeQty = useCartStore(state => state.changeQty);
+  const removeItem = useCartStore(state => state.removeItem);
+
+  return (
+    <View style={styles.card}>
+      <View style={styles.thumbnailContainer}>
+        <Image
+          source={{ uri: item.product.image }}
+          style={styles.image}
+          resizeMode="cover"
+        />
+      </View>
+
+      <View style={styles.info}>
+        <Text style={styles.title} numberOfLines={2}>
+          {item.product.title}
+        </Text>
+        <Text style={styles.price}>
+          ×{item.quantity}  {money(unitPrice * item.quantity)}
+        </Text>
+
+        <View style={styles.controls}>
+          <Pressable
+            style={[styles.qtyButton, item.quantity <= 1 && styles.disabled]}
+            disabled={item.quantity <= 1}
+            accessibilityLabel="Giảm số lượng"
+            onPress={() => {
+              changeQty(item.product.id, item.quantity - 1);
+              triggerHaptic();
+            }}>
+            <Text style={styles.qtyButtonText}>−</Text>
+          </Pressable>
+
+          <Text style={styles.quantity}>{item.quantity}</Text>
+
+          <Pressable
+            style={styles.qtyButton}
+            accessibilityLabel="Tăng số lượng"
+            onPress={() => {
+              changeQty(item.product.id, item.quantity + 1);
+              triggerHaptic();
+            }}>
+            <Text style={styles.qtyButtonText}>+</Text>
+          </Pressable>
+
+          <Pressable
+            style={styles.removeButton}
+            accessibilityLabel="Xóa sản phẩm"
+            onPress={() => {
+              removeItem(item.product.id);
+              triggerHaptic();
+            }}>
+            <Text style={styles.removeText}>Xóa</Text>
+          </Pressable>
+        </View>
+      </View>
+    </View>
+  );
+}
+
 export default function CartScreen() {
   const items = useCartStore(state => state.items);
   const shippingFee = useCartStore(state => state.shippingFee);
-  const changeQty = useCartStore(state => state.changeQty);
-  const removeItem = useCartStore(state => state.removeItem);
 
   const subtotal = items.reduce(
     (sum, item) =>
@@ -47,63 +107,7 @@ export default function CartScreen() {
           ListEmptyComponent={
             <Text style={styles.emptyText}>Giỏ hàng chưa có sản phẩm nào.</Text>
           }
-          renderItem={({ item }) => {
-            const unitPrice = Math.round(item.product.price * PRICE_MULTIPLIER);
-
-            return (
-              <View style={styles.card}>
-                <Image
-                  source={{ uri: item.product.image }}
-                  style={styles.image}
-                  resizeMode="cover"
-                />
-
-                <View style={styles.info}>
-                  <Text style={styles.title} numberOfLines={2}>
-                    {item.product.title}
-                  </Text>
-                  <Text style={styles.price}>
-                    ×{item.quantity}  {money(unitPrice * item.quantity)}
-                  </Text>
-
-                  <View style={styles.controls}>
-                    <Pressable
-                      style={[styles.qtyButton, item.quantity <= 1 && styles.disabled]}
-                      disabled={item.quantity <= 1}
-                      accessibilityLabel="Giảm số lượng"
-                      onPress={() => {
-                        changeQty(item.product.id, item.quantity - 1);
-                        triggerHaptic();
-                      }}>
-                      <Text style={styles.qtyButtonText}>−</Text>
-                    </Pressable>
-
-                    <Text style={styles.quantity}>{item.quantity}</Text>
-
-                    <Pressable
-                      style={styles.qtyButton}
-                      accessibilityLabel="Tăng số lượng"
-                      onPress={() => {
-                        changeQty(item.product.id, item.quantity + 1);
-                        triggerHaptic();
-                      }}>
-                      <Text style={styles.qtyButtonText}>+</Text>
-                    </Pressable>
-
-                    <Pressable
-                      style={styles.removeButton}
-                      accessibilityLabel="Xóa sản phẩm"
-                      onPress={() => {
-                        removeItem(item.product.id);
-                        triggerHaptic();
-                      }}>
-                      <Text style={styles.removeText}>Xóa</Text>
-                    </Pressable>
-                  </View>
-                </View>
-              </View>
-            );
-          }}
+          renderItem={({ item }) => <CartItemRow item={item} />}
         />
 
         {items.length > 0 && (
@@ -170,11 +174,16 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     gap: 12,
   },
-  image: {
+  thumbnailContainer: {
     width: 75,
     height: 75,
     borderRadius: 8,
-    backgroundColor: COLORS.border,
+    backgroundColor: COLORS.background,
+    overflow: 'hidden',
+  },
+  image: {
+    width: '100%',
+    height: '100%',
   },
   info: { flex: 1 },
   title: { color: COLORS.text, fontWeight: '700', fontSize: 14 },
